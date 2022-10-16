@@ -4,9 +4,12 @@ import Logo from "../../assets/Logonetflix.png";
 import AccountIcon from "../../assets/profileIcon.png";
 import Link from "next/link";
 import { MagnifyingGlassIcon, BellIcon } from "@heroicons/react/24/solid";
+import useAuth from "../../hooks/useAuth";
+
 
 function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
+  const { logout } = useAuth()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -47,13 +50,14 @@ return (
         <MagnifyingGlassIcon className="sm hidden h-6 w-6 sm:inline " />
         <p className="hidden lg:inline">Kids</p>
         <BellIcon className="h-6 w-6" />
-        <Link href="/account">
+        {/* <Link href="/account"> */}
           <Image
+          onClick={logout}
             src={AccountIcon}
             alt="account icon"
             className="cursor-pointer rounded"
           />
-        </Link>
+        {/* </Link> */}
       </div>
     </header>
   );

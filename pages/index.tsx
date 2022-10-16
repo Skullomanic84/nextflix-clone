@@ -4,6 +4,11 @@ import Header from "../components/header/header";
 import requests from "../utils/requests";
 import { Movie } from "../typings";
 import Row from "../components/row/Row";
+import useAuth from '../hooks/useAuth'
+import { useRecoilValue } from 'recoil'
+import { modalState, movieState } from '../atoms/modalAtom'
+import Modal from "../components/modal/Modal";
+
 
 interface Props {
   netflixOriginals: Movie[];
@@ -26,10 +31,20 @@ const Home = ({
   topRated,
   trendingNow,
 }: Props) => {
+  
+  const showModal = useRecoilValue(modalState)
+  const { user, loading } = useAuth()
+  const movie = useRecoilValue(movieState)
+  if (loading) return null
+  // if (loading || subscription === null) return null
+
+  // if (!subscription) return <Plans products={products} />
+  
   return (
-    <div className="relative h-screen bg-gradient-to-b lg:h-[140vh]">
+    <div className={`relative h-screen bg-gradient-to-b from-gray-900/10 to-[#010511] lg:h-[140vh] ${
+      showModal && '!h-screen overflow-hidden'}`}>
       <Head>
-        <title>Home - Nextflix</title>
+        <title>{movie?.title || movie?.original_name || 'Home'} - Netflix</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
       {/* header section */}
@@ -52,6 +67,8 @@ const Home = ({
         </section>
       </main>
       {/* modal */}
+      {showModal && <Modal />}
+
     </div>
   );
 };
@@ -59,6 +76,13 @@ const Home = ({
 export default Home;
 
 export const getServerSideProps = async () => {
+  const products = await getProducts(payments, {
+    includePrices: true,
+    activeOnly: true,
+  })
+    .then((res) => res)
+    .catch((error) => console.log(error.message))
+
   const [
     netflixOriginals,
     trendingNow,
@@ -89,6 +113,7 @@ export const getServerSideProps = async () => {
       horrorMovies: horrorMovies.results,
       romanceMovies: romanceMovies.results,
       documentaries: documentaries.results,
+      products,
     },
   };
 };
