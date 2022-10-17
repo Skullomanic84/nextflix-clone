@@ -4,10 +4,15 @@ import Header from "../components/header/header";
 import requests from "../utils/requests";
 import { Movie } from "../typings";
 import Row from "../components/row/Row";
+import Plans from "../components/plans/Plans";
 import useAuth from '../hooks/useAuth'
 import { useRecoilValue } from 'recoil'
 import { modalState, movieState } from '../atoms/modalAtom'
 import Modal from "../components/modal/Modal";
+import { getProducts, Product } from '@stripe/firestore-stripe-payments';
+import payments from '../lib/stripe';
+import useList from '../hooks/useList';
+import useSubscription from '../hooks/useSubscription';
 
 
 interface Props {
@@ -19,6 +24,7 @@ interface Props {
   horrorMovies: Movie[];
   romanceMovies: Movie[];
   documentaries: Movie[];
+  products: Product[]
 }
 
 const Home = ({
@@ -30,19 +36,23 @@ const Home = ({
   romanceMovies,
   topRated,
   trendingNow,
+  products,
 }: Props) => {
   
   const showModal = useRecoilValue(modalState)
   const { user, loading } = useAuth()
   const movie = useRecoilValue(movieState)
-  if (loading) return null
-  // if (loading || subscription === null) return null
+  const subscription = useSubscription(user)
+  const list = useList(user?.uid)
 
-  // if (!subscription) return <Plans products={products} />
+
+  if (loading || subscription === null) return null
+if (!subscription) return <Plans products={products} />
   
   return (
     <div className={`relative h-screen bg-gradient-to-b from-gray-900/10 to-[#010511] lg:h-[140vh] ${
       showModal && '!h-screen overflow-hidden'}`}>
+
       <Head>
         <title>{movie?.title || movie?.original_name || 'Home'} - Netflix</title>
         <link rel="icon" href="/favicon.ico" />
